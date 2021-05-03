@@ -1,33 +1,58 @@
+/*
+ * If not stated otherwise in this file or this component's LICENSE file the
+ * following copyright and licenses apply:
+ *
+ * Copyright 2020 Metrological
+ *
+ * Licensed under the Apache License, Version 2.0 (the License);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import Validator from './Validator'
 export default class FilterParams {
     constructor(){
         const commonValidators = ["isNumber"]
         this._type = {
             name: "type",
-            validator: ["isString", "isValidFilterType"],
-            filters : Object.values(FilterParams.TYPE)
+            validator: ["isString", "isExists"],
+            possibleValues : Object.values(FilterParams.TYPE),
+            value: FilterParams.TYPE.LOWPASS,
+            readOnly: false
         }
 
         this._frequency = {
             name: "frequency",
-            validator : commonValidators
+            validator : commonValidators,
+            readOnly: true
         }
 
         this._detune = {
             name: "detune",
-            validator: commonValidators
+            validator: commonValidators,
+            readOnly: true
         }
 
         this._gain = {
             name: "gain",
             validator: [...commonValidators, "range"],
-            range: [-40, 40]
+            range: [-40, 40],
+            readOnly: true
         }
 
         this._Q = {
             name: "quality factor",
             validator: [...commonValidators, "range"],
-            range: [0.0001, 1000]
+            range: [0.0001, 1000],
+            readOnly: true
         }
 
         this._validator = new Validator()
@@ -48,7 +73,6 @@ export default class FilterParams {
     }
 
     set frequency(v){
-        console.log(this._frequency)
         if(this._validator.validate(this._frequency, v)){
             this._frequency.value = v
         }
@@ -83,6 +107,11 @@ export default class FilterParams {
     get Q(){
         return this._Q.value
     }
+
+    isReadonly(param){
+        return this[`_${param}`].readOnly
+    }
+
 }
 
 FilterParams.TYPE  = {

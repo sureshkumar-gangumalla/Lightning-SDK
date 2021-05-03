@@ -1,7 +1,27 @@
+/*
+ * If not stated otherwise in this file or this component's LICENSE file the
+ * following copyright and licenses apply:
+ *
+ * Copyright 2020 Metrological
+ *
+ * Licensed under the Apache License, Version 2.0 (the License);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import loader from './loader'
-import { isFunction, isObject, isArray, filters } from './utils'
+import { isFunction, isObject, isArray} from './utils'
 import { WebAudio, HTMLAudio } from './audio'
-import { CompressorParams, FilterParams} from './audioParams'
+import { CompressorParams, FilterParams, PannerParams} from './audioParams'
+import WebAudioListener from './WebAudioListener'
 
 let AudioCtx
 let ctx
@@ -10,6 +30,7 @@ let initialized = false
 let allAudioInstances = new Map()
 let effectsBuffers = new Map()
 let isAudioContextAvailable = false
+let listener
 
 if(window.AudioContext || window.webkitAudioContext){
   isAudioContextAvailable = true
@@ -161,12 +182,31 @@ const getAudio = (identifier) => {
  * Play all the loaded audios
  * @param {Object} config The audio params configuration object
  */
-const play =  async (config) => {
+const play =  async (config, identifiers) => {
+  let audioInstances = new Map(allAudioInstances);
+  if(identifiers){
+    if(!isArray(identifiers)){
+      console.error('Identifiers must be an array')
+    } else {
+      if(identifiers.length){
+        audioInstances = new Map()
+        for(const key of allAudioInstances.keys()){
+          if(identifiers.indexOf(key) !== -1){
+            audioInstances.set(key, allAudioInstances.get(key))
+          }
+        }
+      }
+    }
+  }
  for(const audio of allAudioInstances.values()){
    if(audio){
       audio.reset()
       if(config && isObject(config)){
         for(let prop in config){
+          if(isArray(config[prop])){
+            audio[prop](...config[prop])
+            continue
+          }
           audio[prop](config[prop])
         }
       }
@@ -247,6 +287,16 @@ const removeEffects = async(identifiers) => {
   })
 }
 
+const getListener = () => {
+  if(isAudioContextAvailable){
+    if(!listener){
+      listener = new WebAudioListener(ctx)
+    }
+    return listener
+  }
+  console.warn('Audio context not available')
+}
+
 export default {
   initWebAudio,
   load,
@@ -266,4 +316,6 @@ export default {
   removeEffects,
   CompressorParams,
   FilterParams,
+  PannerParams,
+  getListener
 }

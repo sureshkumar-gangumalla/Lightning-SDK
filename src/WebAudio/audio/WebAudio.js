@@ -1,5 +1,25 @@
+/*
+ * If not stated otherwise in this file or this component's LICENSE file the
+ * following copyright and licenses apply:
+ *
+ * Copyright 2020 Metrological
+ *
+ * Licensed under the Apache License, Version 2.0 (the License);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import BaseAudio from './BaseAudio'
-import { CompressorParams, FilterParams } from './../audioParams'
+import { CompressorParams, FilterParams, PannerParams, PannerNodeWrapper } from './../audioParams'
+import { creatDistortionCurve, validateCoeff, setNodeParams } from './audioUtils'
 import { isArray } from './../utils'
 
 /**
@@ -18,6 +38,7 @@ export default class WebAudio extends BaseAudio {
         this._currentOffset = 0
         this._nodes = new Map()
         this._createEntryForDelayNode()
+        this._isEnded = true
     }
 
     /**
@@ -102,6 +123,10 @@ export default class WebAudio extends BaseAudio {
     * source node and destination node then start playing the audio
     */
     play(){
+        if(!this._isEnded){
+            this.resume()
+            return
+        }
         try{
             this._createAudioSource()
             let finalNode = this._sourceNode
@@ -131,7 +156,9 @@ export default class WebAudio extends BaseAudio {
         this._sourceNode.start(0, offset)
         this._lastStartedAt = parseFloat((this._audioContext.currentTime).toFixed(2))
         this._playing = true
+        this._isEnded = false
         this._sourceNode.onended = () => {
+            this._isEnded = true
             this._playing = false
           }
     }
@@ -190,6 +217,10 @@ export default class WebAudio extends BaseAudio {
                 }
                 this._playing = false
                 this._currentOffset = offset
+
+                setTimeout(() => {
+                    this._isEnded = false
+                }, 100);
             } else {
                 console.warn(`"${this._identifier}" audio is not playing`)
             }
@@ -210,6 +241,7 @@ export default class WebAudio extends BaseAudio {
             this._isAudioGraphConstructed = false
         }
         this._playing = false
+        this._isEnded = true
         this._currentOffset = this._initOffset
     }
 
@@ -249,11 +281,8 @@ export default class WebAudio extends BaseAudio {
 
         const compressor = this._nodes.has("compressor") ? this._nodes.get("compressor") : this._audioContext.createDynamicsCompressor()
 
-        compressorParams.params.forEach( (key) => {
-            if(compressorParams[key]){
-                compressor[key].value = compressorParams[key]
-            }
-        })
+        setNodeParams(compressor, compressorParams)
+
         if(!this._nodes.has("compressor")){
             this._nodes.set("compressor", compressor)
         }
@@ -269,39 +298,15 @@ export default class WebAudio extends BaseAudio {
             console.error("The argument must be instance of FilterParams")
             return this
         }
-        const filter = this._nodes.has("filter") ? this._nodes.get("filter") : this._audioContext.createBiquadFilter()
+        const key = "filter_" + filterParams.type
+        const filter = this._nodes.has(key) ? this._nodes.get(key) : this._audioContext.createBiquadFilter()
 
-        filterParams.params.forEach( (key) => {
-            if(filterParams[key]){
-                if("type" == key){
-                    filter[key]= filterParams[key]
-                    return
-                }
-                filter[key].value = filterParams[key]
-            }
-        })
-        if(!this._nodes.has("filter")){
-            this._nodes.set("filter", filter)
+        setNodeParams(filter, filterParams)
+
+        if(!this._nodes.has(key)){
+            this._nodes.set(key, filter)
         }
         return this
-    }
-
-    /**
-     *  Validator for filter coefficients
-     * @param {string} name The name of the control
-     * @param {Array} coefficients The coefficients array
-     * @return valid coefficients or not
-     */
-    _validateCoeff(name, coefficients){
-        if(!coefficients || !isArray(coefficients)){
-            console.error(`${name} coefficients must be an array`)
-            return false
-        }
-        if(coefficients.length < 1 ||  coefficients.length > 20 ){
-            console.error(`The number of ${name} coefficients provided (${coefficients.length}) is outside the range [1, 20].`)
-            return false
-        }
-        return true
     }
 
     /**
@@ -311,7 +316,7 @@ export default class WebAudio extends BaseAudio {
      */
     IIRFilter(feedForward, feedBack){
 
-       if(!this._validateCoeff("feedForward", feedForward) || !this._validateCoeff("feedBack", feedBack)) return this
+       if(!validateCoeff("feedForward", feedForward) || !validateCoeff("feedBack", feedBack)) return this
 
         try{
             const iirFilterNode = this._audioContext.createIIRFilter(feedForward, feedBack)
@@ -324,6 +329,84 @@ export default class WebAudio extends BaseAudio {
     }
 
     /**
+     * Create distortion node
+     * @param {number} amount The amount of distortion
+     * @param {string} oversample The type of over sample
+     */
+    distortion(amount, oversample){
+        if(this._validate("distortion amount", amount, [0, 1])){
+
+            const distortionNode = this._nodes.has('distortion') ? this._nodes.get('distortion') : this._audioContext.createWaveShaper()
+            const sampleRate = this._audioBuffers.get(this._identifier).sampleRate
+            distortionNode.curve = creatDistortionCurve(amount * 100, sampleRate)
+
+            if(oversample){
+                if(oversample == '2x' || oversample == '4x'){
+                    distortionNode.oversample = oversample
+                } else {
+                    console.warn('The over sample type must be either "2x" or "4x".')
+                }
+            }
+            if(!this._nodes.has("distortion")){
+                this._nodes.set("distortion", distortionNode)
+            }
+        }
+        return this
+    }
+
+    /**
+     * Create a panner node by setting all the configured panner parameters
+     * @param {Object} pannerParams The panner node parameters
+     */
+    panner(pannerParams){
+        if( !pannerParams || !(pannerParams instanceof PannerParams)){
+            console.error("The argument must be instance of PannerParams")
+            return this
+        }
+        const key = 'panner'
+        const pannerNode = this._nodes.has(key) ? this._nodes.get(key) : this._audioContext.createPanner()
+
+        setNodeParams(pannerNode, pannerParams)
+
+        if(!this._nodes.has(key)){
+            this._nodes.set(key, pannerNode)
+        }
+        return this
+    }
+
+    /**
+     * Create panner node wrapper on top on connected panner node.
+     * The wrapper enable provision to directly update the panner node parameters.
+     * As panner node is mainly used in spatialization user may change the
+     * position and orientation of audio source more frequently based on moment of objects
+     */
+    getPanner(){
+        if(this._nodes.has('panner')){
+            if(!this._pannerNodeWrapper){
+                this._pannerNodeWrapper = new PannerNodeWrapper(this._nodes.get('panner'))
+            }
+            return this._pannerNodeWrapper
+        } else {
+            console.warn(`panner node not configured`)
+        }
+    }
+
+    /**
+     * This is used to pan an audio stream left or right
+     * @param {number} pan The pan value to adjust stream between left and right
+     */
+    stereoPanner(pan){
+        if(this._validate('pan', pan, [-1, 1])){
+            const stereoPannerNode = this._nodes.has('stereoPanner') ? this._nodes.get('stereoPanner') : this._audioContext.createStereoPanner()
+            stereoPannerNode.pan.value = pan
+            if(!this._nodes.has('stereoPanner')){
+                this._nodes.set('stereoPanner', stereoPannerNode)
+            }
+        }
+        return this
+    }
+
+    /**
      * Reset to default state
      */
     reset(){
@@ -331,13 +414,15 @@ export default class WebAudio extends BaseAudio {
         this._initOffset = 0
         this._currentOffset = 0
         this._loop = false
+        this._isEnded = true
         this._nodes = new Map()
+        this._pannerNodeWrapper = undefined
         this._createEntryForDelayNode()
         return this
     }
 
     /**
-     *  Remove the connected audio graph by disconnecting nodes
+     * Remove the connected audio graph by disconnecting nodes
      */
     _removeAudioGraph(){
         let finalNode = this._sourceNode
