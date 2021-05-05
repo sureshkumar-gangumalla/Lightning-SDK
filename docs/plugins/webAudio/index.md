@@ -99,10 +99,10 @@ Play all the loaded audios with given settings
 The `play` method accept the two arguments
 (`settings` and `identifiers`). Both the parameters are optional.
 
-`settings` is an object where key represents the setting name and value represents its value and these settings are applied of each audios
+`settings` is an object where key represents the setting name and value represents its value and these settings are applied on each audio.
 
 `identifiers` is an array of `identifier`.
-`play` method plays only audios of given identifiers if this argument if fulfilled or else play all the audios
+`play` method plays only audios of given identifiers if this argument is fulfilled or else play all the audios.
 
 ```js
 const settings = {
@@ -122,7 +122,7 @@ WebAudio.play(settings)
 
 ### stop
 
-Stop the all audios
+Stops the all audios.
 
 ```js
 WebAudio.stop()
@@ -130,7 +130,7 @@ WebAudio.stop()
 
 ### pause
 
-Pause the all running audios
+Pauses the all running audios.
 
 ```js
 WebAudio.pause()
@@ -138,7 +138,7 @@ WebAudio.pause()
 
 ### resume
 
-Resume the all paused audios
+Resumes the all paused audios.
 
 ```js
 WebAudio.resume()
@@ -148,7 +148,7 @@ WebAudio.resume()
 
 Remove the loaded audios
 
-The `remove` method accept `identifiers` as argument. This is options argument if provided remove only given audios or else all the audios
+The `remove` method accept `identifiers` as an argument. This is an optional argument if provided remove only given audios or else all the audios.
 
 ```js
 WebAudio.remove() // remove all the audios
@@ -162,7 +162,7 @@ WebAudio.remove() // remove all the audios
 
 Remove the audio effects
 
-The `removeEffects` method accept `identifiers` as argument. This is optional argument if provided remove only given effects or else all the effects
+The `removeEffects` method accept `identifiers` as an argument. This is an optional argument if provided remove only given effects or else all the effects.
 
 ```js
 WebAudio.removeEffects() // remove all the effects
