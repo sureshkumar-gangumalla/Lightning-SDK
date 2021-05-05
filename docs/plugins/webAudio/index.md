@@ -166,14 +166,13 @@ WebAudio.removeEffects() // remove all the effects
 /*
  WebAudio.removeEffects(['telephone']) remove only telephone effect
 */
-
-
+```
 
 ### getListener
 
 
-
-
+Next:
+[Single Audio](singleAudio.md)
 
 
 
