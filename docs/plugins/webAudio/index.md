@@ -3,7 +3,7 @@
 A common feature of TV apps is to play audios. The WebAudio plugin offers a convenient interface to interact with the audio player of the STB. You can use it to play / pause audios.
 It also allowing developers to choose audio sources, add effects to audio, apply spatial effects (such as panning) and much more.
 
-Although it�s possible to implement a fully custom audio solution, the use of the WebAudio plugin from the SDK is highly recommended.
+Although it's possible to implement a fully custom audio solution, the use of the WebAudio plugin from the SDK is highly recommended.
 
 ## Example app
 
@@ -11,7 +11,7 @@ We've provided an example App that showcases all the features of the Web Audio: 
 
 ## Usage
 
-In order to power your App with audio capabilities you first need to import this plugin from the Lightning-SDK
+In order to power your App with audio capabilities you first need to import this plugin from the Lightning-SDK.
 
 ```js
 import { WebAudio } from '@lightningjs/sdk'
@@ -48,7 +48,7 @@ load the configured audio buffers into the application and set the optional cont
 The `load` method accept an config object.
 config should have `sounds` property with array of audio objects as value. Each audio object key act as `identifier` of `audio` and value is audio source URL.
 
-confing can have optional property `audioContext` represents instance of context
+confing can have optional property `audioContext` represents instance of context.
 
 
 ```js
@@ -74,7 +74,7 @@ WebAudio.getBuffers()
 
 ### isReady
 
-Return whether instance of `AudioContext` created or  not
+Return whether instance of `AudioContext` created or  not.
 
 ```js
 WebAudio.isReady()
@@ -84,9 +84,9 @@ WebAudio.isReady()
 
 load the effects into application.
 
-Effects are impulse responses used to perform linear convolution on audio
+Effects are impulse responses used to perform linear convolution on audio.
 
-The `loadEffects` method accept an array of objects. Each object key act as identifier of the effect and value represents the impulse response source url
+The `loadEffects` method accept an array of objects. Each object key act as identifier of the effect and value represents the impulse response source url.
 
 ```js
 const effects = [
@@ -99,12 +99,14 @@ WebAudio.load(effects)
 
 ### getAudio
 
-Return the `WebAudio` instance of given identifier
+Return the `WebAudio` instance of given identifier.
+
+The `WebAudio` provide provision to control single audio with effects [Single Audio](singleAudio.md)`.
 
 The `WebAudio` provide provision to control single audio with effects [Single Audio](singleAudio.md)`
 
 The `getAudio` method accept an identifier
-to find out the audio
+to find out the audio.
 
 ```js
 WebAudio.getAudio('speech')
@@ -130,7 +132,7 @@ const settings = {
     delay: 1,
     loop: false,
     stereoPanner: 1,
-    effect: 'muffler'
+    effect: 'muffler',
     filter: new WebAudio.FilterParams(),
     compress: new WebAudio.CompressorParam(),
     panner: new WebAudio.PannerParams(),

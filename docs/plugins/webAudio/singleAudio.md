@@ -11,7 +11,7 @@ const speechAudio = WebAudio.getAudio('speech')
 
 ### play
 
-Plays the audio.
+Plays the current audio.
 
 ```js
 WebAudio.getAudio('speech').play()
@@ -19,7 +19,7 @@ WebAudio.getAudio('speech').play()
 
 ### pause
 
-Pauses the playing audio.
+Pauses the audio that is currently being played.
 
 ```js
 WebAudio.getAudio('speech').pause()
@@ -27,7 +27,7 @@ WebAudio.getAudio('speech').pause()
 
 ### resume
 
-Resumes the paused audio.
+Resumes the current audio.
 
 ```js
 WebAudio.getAudio('speech').resume()
@@ -35,7 +35,7 @@ WebAudio.getAudio('speech').resume()
 
 ### stop
 
-Stops the current playing audio.
+Stops the audio that is currently being played.
 
 ```js
 WebAudio.getAudio('speech').stop()
@@ -46,6 +46,8 @@ WebAudio.getAudio('speech').stop()
 ### volume
 
 Set the volume of audio.
+
+Multiply the audio samples by a value to make them louder or quieter.
 
 The `volume` method accept 1 argument (`volume`) and the value should be in range [0, 1].
 
@@ -58,26 +60,27 @@ WebAudio.getAudio('speech').volume(0.5)
 
 Skips a specified number of seconds from start of audio.
 
-The `skip` method accepts the number of seconds to jump as single argument.
+The `skip` method accepts the number of seconds to jump as single argument. The  value in second should be less than duration of audio.
+
 ```js
-WebAudio.getAudio('speech').skip(5)
+WebAudio.getAudio('speech').skip(5) // range: [0, duration of audio]
 ```
 
 ### delay
 
-Set the delay on audio.
+Set the delay on audio. User can't hear the sound of playing audio until delay is over.
 
 The `delay` method accepts the number of seconds of delay as single argument.
 
 ```js
-WebAudio.getAudio('speech').delay(5)
+WebAudio.getAudio('speech').delay(5) // range: [0, 179]
 ```
 
 ### loop
 
-Set the audio in loop mode.
+Set the audio in loop state.
 
-The `loop` method accepts the boolean value `true` or `false`. The default value is `true`.
+The loop method accepts a Boolean as its single argument. When passed `true` (or when omitted), it instructs the web audio to loop (i.e., to restart the current audio when it reaches the end). When passed `false`, it instructs the web audio not to loop the audio.
 
 ```js
 WebAudio.getAudio('speech').loop()
@@ -85,7 +88,7 @@ WebAudio.getAudio('speech').loop()
 
 ### reset
 
-Reset to initial state by dropping all the configured effects.
+Reset the audio to initial state by dropping all the configured settings.
 
 ```js
 WebAudio.getAudio('speech').reset()
@@ -95,6 +98,8 @@ WebAudio.getAudio('speech').reset()
 
 Apply the effect on audio.
 
+Performs a Linear Convolution on current audio buffer with effect impulse response and achieve a reverb effect.
+
 The `effect` method accepts the `identifier` of effect as single argument and that should be the valid as well as loaded before.
 
 ```js
@@ -103,7 +108,7 @@ WebAudio.getAudio('speech').effet('muffler')
 
 ### compress
 
-Compression effect lowers the volume of loudest parts of singal.
+Compression effect lowers the volume of loudest parts of audio singal.
 
 The `compress` method accepts the `CompressorParams` object as single argument.
 
@@ -114,11 +119,11 @@ You can find more about properties of compressor at [ Compressor](https://develo
 ```js
 const compParams = new WebAudio.CompressorParams()
 
-compParams.threshold = -50
-compParams.knee = 20
-compParams.ratio = 6
-compParams.attack = 1
-compParams.release = 1
+compParams.threshold = -50 // range:[-100, 0]
+compParams.knee = 20    //  range: [0, 40]
+compParams.ratio = 6    //  range: [1, 20]
+compParams.attack = 1   //  range: [0, 1]
+compParams.release = 1  //  range: [0, 1]
 
 WebAudio.getAudio('speech').compress(compParams)
 ```
@@ -126,7 +131,9 @@ WebAudio.getAudio('speech').compress(compParams)
 ### filter
 
 A low-order filter on audio which uses
-filter algorithms based on type of filter
+filter algorithms based on type of filter.
+
+Example `lowpass` filter type achieve frequencies below the cutoff pass through and frequencies above it are attenuated.
 
 The `filter` method accepts the `FilterParams` object as single argument.
 
@@ -139,13 +146,26 @@ You can find more about properties of filter at [Filter](https://developer.mozil
 const filterParams  = new WebAudio.FilterParams()
 
 // FilterParams properties
-filterParams1.frequency = 100
-filterParams1.detune = 10
-filterParams1.Q = 10
-filterParams1.gain = 10
+filterParams.frequency = 100 // cut of frequecy in hertz
+filterParams.detune = 10    //  frequency in cents
+filterParams.Q = 10         //  range: [0.0001, 1000]
+filterParams.gain = 10      //  range: [-40, 40]
 filterParams.type = WebAudio.FilterParams.TYPE.HIGHPASS
 
 WebAudio.getAudio('speech').filter(filterParams)
+
+/* Available filter types are,
+
+WebAudio.FilterParams.TYPE.LOWPASS
+WebAudio.FilterParams.TYPE.HIGHPASS
+WebAudio.FilterParams.TYPE.BANDPASS
+WebAudio.FilterParams.TYPE.LOWSHELF
+WebAudio.FilterParams.TYPE.HIGHSHELF
+WebAudio.FilterParams.TYPE.NOTCH
+WebAudio.FilterParams.TYPE.PEAKING
+WebAudio.FilterParams.TYPE.ALLPASS
+*/
+
 ```
 
 ### IIRFilter
@@ -198,12 +218,12 @@ pannerParams.positionZ = 1
 pannerParams.coneInnerAngle = 480
 pannerParams.coneOuterAngle = -10
 pannerParams.coneOuterGain = 0
-pannerParams.distanceModel = 'linear'
+pannerParams.distanceModel = 'linear' // possibleValues: ['linear', 'inverse', 'exponential'],
 pannerParams.maxDistance = 9
 pannerParams.orientationX = 0
 pannerParams.orientationY = 0
 pannerParams.orientationZ = 1
-pannerParams.panningModel = 'HRTF'
+pannerParams.panningModel = 'HRTF'  // possibleValues: ['equalpower', 'HRTF']
 pannerParams.refDistance = 1
 pannerParams.rolloffFactor = 1.1
 
@@ -236,7 +256,7 @@ All the effects methods on `WebAudio` (`WebAudio.getAudio('speech')`) are chaina
 
 ```js
 
-// Chainable methods
+// method chaining
 WebAudio.getAudio('speech').volume(1).skip(5).delay(5).loop().effect('muffler').play()
 
 ```
