@@ -1,6 +1,9 @@
 # Web Audio
 
-The Web Audio plugin provides a powerful and versatile system for controlling audio on the Web, allowing developers to choose audio sources, add effects to audio, apply spatial effects (such as panning) and much more.
+A common feature of TV apps is to play audios. The WebAudio plugin offers a convenient interface to interact with the audio player of the STB. You can use it to play / pause audios.
+It also allowing developers to choose audio sources, add effects to audio, apply spatial effects (such as panning) and much more.
+
+Although it�s possible to implement a fully custom audio solution, the use of the WebAudio plugin from the SDK is highly recommended.
 
 ## Example app
 
@@ -8,7 +11,7 @@ We've provided an example App that showcases all the features of the Web Audio: 
 
 ## Usage
 
-In order to power your App with Web Audio capabilities you first need to import this plugin from the Lightning-SDK
+In order to power your App with audio capabilities you first need to import this plugin from the Lightning-SDK
 
 ```js
 import { WebAudio } from '@lightningjs/sdk'
@@ -21,9 +24,14 @@ The Web Audio exposes methods that you can use in your app:
 
 ### initWebAudio
 
-Override the AudioContext constructor with platform provided AudioContext
+The Web Audio API involves handling audio operations inside an audio context, and has been designed to allow modular routing. We can use `initWebAudio` method to override the default AudioContext of `window` object with platform provided AudioContext.
 
-The `initWebAudio` accept config object
+`AudioContext` represents an audio-processing graph built from audio modules linked together.
+It controls the execution of audio processing or decoding.
+
+By default Web Audio plugin uses `window.AudioContext` or `window.webkitAudioContext`.
+
+The `initWebAudio` accept config object.
 
 ```js
 const config = {
@@ -35,24 +43,30 @@ WebAudio.initWebAudio(config)
 
 ### Load
 
-load the configured audio buffers into the application and override default window AudioContext with given context
+load the configured audio buffers into the application and set the optional context instance.
 
 The `load` method accept an config object.
-Object should have `sounds` property with array of objects as value.
-Each object key act as `identifier` of `audio` and value is audio source URL
+config should have `sounds` property with array of audio objects as value. Each audio object key act as `identifier` of `audio` and value is audio source URL.
+
+confing can have optional property `audioContext` represents instance of context
 
 
 ```js
 const audios = [
     {speech: 'https://webaudioapi.com/samples/room-effects/sounds/speech.mp3'},
-    {chrono_sound: 'https://webaudioapi.com/samples/script-processor/chrono.mp3'}
+    {chrono: 'https://webaudioapi.com/samples/script-processor/chrono.mp3'}
 ]
+
+const config = {
+    sounds: audios,
+    audioContext: new AudioContext() //optional
+}
 
 WebAudio.load(config)
 ```
 ### getBuffers
 
-Return beffers of loaded audios
+Return the beffers of loaded audios.
 
 ```js
 WebAudio.getBuffers()
@@ -60,7 +74,7 @@ WebAudio.getBuffers()
 
 ### isReady
 
-Return status of completion of audio context instance creation
+Return whether instance of `AudioContext` created or  not
 
 ```js
 WebAudio.isReady()
@@ -70,7 +84,9 @@ WebAudio.isReady()
 
 load the effects into application.
 
-The `loadEffects` method accept an array of objects. Each object key act as identifier of the effect and value represents the audio source url
+Effects are impulse responses used to perform linear convolution on audio
+
+The `loadEffects` method accept an array of objects. Each object key act as identifier of the effect and value represents the impulse response source url
 
 ```js
 const effects = [
@@ -85,6 +101,8 @@ WebAudio.load(effects)
 
 Return the `WebAudio` instance of given identifier
 
+The `WebAudio` provide provision to control single audio with effects [Single Audio](singleAudio.md)`
+
 The `getAudio` method accept an identifier
 to find out the audio
 
@@ -92,37 +110,55 @@ to find out the audio
 WebAudio.getAudio('speech')
 ```
 
-### play
+### setSettings
 
-Play all the loaded audios with given settings
+By default all the loaded audios are marked as `selectedAudios` and these can be controlled by `play`, `pause`, `stop` and `reset` methods.
 
-The `play` method accept the two arguments
+The `setSettings` method accept the two arguments
 (`settings` and `identifiers`). Both the parameters are optional.
 
-`settings` is an object where key represents the setting name and value represents its value and these settings are applied on each audio.
+`settings` is an object where key represents the setting name and value represents its value.
 
-`identifiers` is an array of `identifier`.
-`play` method plays only audios of given identifiers if this argument is fulfilled or else play all the audios.
+`identifiers` is an array of audio `identifier`. If `idetifiers` are provided only those audios are marked as `selectedAudios`.
+
+settings will be applied on `selectedAudios`.
 
 ```js
 const settings = {
     volume: 1,
     skip: 0.5,
-    delay: 1
+    delay: 1,
+    loop: false,
+    stereoPanner: 1,
+    effect: 'muffler'
+    filter: new WebAudio.FilterParams(),
+    compress: new WebAudio.CompressorParam(),
+    panner: new WebAudio.PannerParams(),
+    IIRFilter: [feedForward, feedBack],
+    distortion: [amount, oversample]
 }
 
-WebAudio.play(settings)
+const audios = ['speech', 'chrono']
 
-/*
-  const identifiers = ['speech']
+WebAudio.setSettings(settings, audios)
 
-  WebAudio.play(settings, identifiers)
- */
+// WebAudio.setSettings(settings) //settings applied on all loaded audios
+
+// WebAudio.setSettings({}, audios) // only given audio identifiers marked as selectedAudios with empty settings.
+```
+
+### play
+
+Plays the `selectedAudios`.
+
+```js
+
+WebAudio.play()
 ```
 
 ### stop
 
-Stops the all audios.
+Stops the `selectedAudios`.
 
 ```js
 WebAudio.stop()
@@ -130,7 +166,7 @@ WebAudio.stop()
 
 ### pause
 
-Pauses the all running audios.
+Pauses the `selectedAudios`.
 
 ```js
 WebAudio.pause()
@@ -138,7 +174,7 @@ WebAudio.pause()
 
 ### resume
 
-Resumes the all paused audios.
+Resumes the `selectedAudios`.
 
 ```js
 WebAudio.resume()
@@ -146,7 +182,7 @@ WebAudio.resume()
 
 ### remove
 
-Remove the loaded audios
+Remove the loaded audios.
 
 The `remove` method accept `identifiers` as an argument. This is an optional argument if provided remove only given audios or else all the audios.
 
@@ -160,7 +196,7 @@ WebAudio.remove() // remove all the audios
 
 ### removeEffects
 
-Remove the audio effects
+Remove the audio effects (impulse response audios).
 
 The `removeEffects` method accept `identifiers` as an argument. This is an optional argument if provided remove only given effects or else all the effects.
 
@@ -175,9 +211,25 @@ WebAudio.removeEffects() // remove all the effects
 ### getListener
 
 Return the `WebAudioListener` instance that
-represents the position and orientation of the unique person listening to the audio scene, and is used in audio spatialization
+represents the position and orientation of the unique person listening to the audio scene, and is used in audio spatialization.
 
 You can find more about properties of Audio Listener at [AudioListener](https://developer.mozilla.org/en-US/docs/Web/API/AudioListener#properties)
+
+```js
+
+const listener = WebAudio.getListener()
+
+listener.positionX = 0
+listener.positionY = 0
+listener.positionZ = 1
+listener.forwardX = 0
+listener.forwardY = 0
+listener.forwardZ = 1
+listener.upX =  0
+listener.upY = 0
+listener.upZ = 1
+
+```
 
 Next:
 [Single Audio](singleAudio.md)
