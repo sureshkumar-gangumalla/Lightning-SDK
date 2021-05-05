@@ -45,11 +45,11 @@ WebAudio.getAudio('speech').stop()
 
 ### volume
 
-Set the volume of audio.
+Sets the volume of the audio.
 
 Multiply the audio samples by a value to make them louder or quieter.
 
-The `volume` method accept 1 argument (`volume`) and the value should be in range [0, 1].
+The `volume` method accept one argument (`volume`) and the value should be in the range [0, 1].
 
 
 ```js
@@ -60,7 +60,7 @@ WebAudio.getAudio('speech').volume(0.5)
 
 Skips a specified number of seconds from start of audio.
 
-The `skip` method accepts the number of seconds to jump as single argument. The  value in second should be less than duration of audio.
+The `skip` method accepts the number of seconds to jump as single argument. When the value in seconds exceeds the duration of the audio, it rounds down the value and jumps straight to the end of the audio.
 
 ```js
 WebAudio.getAudio('speech').skip(5) // range: [0, duration of audio]
@@ -68,7 +68,7 @@ WebAudio.getAudio('speech').skip(5) // range: [0, duration of audio]
 
 ### delay
 
-Set the delay on audio. User can't hear the sound of playing audio until delay is over.
+Sets the delay on audio. User can't hear the sound of audio when it play until delay is over.
 
 The `delay` method accepts the number of seconds of delay as single argument.
 
@@ -78,7 +78,7 @@ WebAudio.getAudio('speech').delay(5) // range: [0, 179]
 
 ### loop
 
-Set the audio in loop state.
+Sets the audio in a loop state.
 
 The loop method accepts a Boolean as its single argument. When passed `true` (or when omitted), it instructs the web audio to loop (i.e., to restart the current audio when it reaches the end). When passed `false`, it instructs the web audio not to loop the audio.
 
@@ -96,7 +96,9 @@ WebAudio.getAudio('speech').reset()
 
 ### effect
 
-Apply the effect on audio.
+Applies the effect on audio.
+
+Performs a Linear Convolution on current audio buffer with effect impulse response and achieves a reverb effect.
 
 Performs a Linear Convolution on current audio buffer with effect impulse response and achieve a reverb effect.
 
@@ -108,13 +110,13 @@ WebAudio.getAudio('speech').effet('muffler')
 
 ### compress
 
-Compression effect lowers the volume of loudest parts of audio singal.
+Compression effect lowers the volume of loudest parts of the audio singal.
 
-The `compress` method accepts the `CompressorParams` object as single argument.
+The `compress` method accepts the `CompressorParams` object as a single argument.
 
 The `CompressorParams` instance can be created by `new WebAudio.CompressorParams()`.
 
-You can find more about properties of compressor at [ Compressor](https://developer.mozilla.org/en-US/docs/Web/API/DynamicsCompressorNode#properties).
+You can find more about the properties of compressor at [Compressor](https://developer.mozilla.org/en-US/docs/Web/API/DynamicsCompressorNode#properties).
 
 ```js
 const compParams = new WebAudio.CompressorParams()
@@ -130,16 +132,16 @@ WebAudio.getAudio('speech').compress(compParams)
 
 ### filter
 
-A low-order filter on audio which uses
-filter algorithms based on type of filter.
+A low-order filter on the audio which uses
+filter algorithms based on the type of filter.
 
 Example `lowpass` filter type achieve frequencies below the cutoff pass through and frequencies above it are attenuated.
 
 The `filter` method accepts the `FilterParams` object as single argument.
 
-The `FilterParams` instance can be created by `new WebAudio.FilterParams()`
+The `FilterParams` instance can be created by the `new WebAudio.FilterParams()`
 
-You can find more about properties of filter at [Filter](https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode#properties)
+You can find more about the properties of filter at [Filter](https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode#properties)
 
 ```js
 // create instance of FilterParams
@@ -185,14 +187,14 @@ WebAudio.getAudio('speech').IIRFilter(feedForward, feedBack)
 
 ### distortion
 
-Represents a non-linear distorter. It uses a curve to apply a wave shaping distortion to the signal.
+Represents a non-linear distorter. It uses a curve to apply a waveshaping distortion to the signal.
 
-The `distortion` method accepts 2 arguments (`amount`, `oversample`). The `amount` should be in range [0, 1]
-and `oversample` could be one of the following
+The `distortion` method accepts 2 arguments (`amount`, `oversample`). The `amount` should be in the range [0, 1]
+and the `oversample` could be one of the following
 `2x`, `4x` and `none`.
 The default `oversample` is set to `none`.
 
-the `distortion` curve is formed based on code at [Distortion curve](https://stackoverflow.com/a/22313408).
+the `distortion` curve is formed based on code at the [Distortion curve](https://stackoverflow.com/a/22313408).
 
 ```js
 WebAudio.getAudio('speech').distortion(0.5, '2x')
@@ -202,11 +204,11 @@ WebAudio.getAudio('speech').distortion(0.5, '2x')
 
 Represents the position and behavior of an audio source signal in 3D space, allowing you to create complex panning effects.
 
-The `filter` method accepts the `PannerParams` object as single argument.
+The `filter` method accepts the `PannerParams` object as a single argument.
 
-The `PannerParams` instance can be created by `new WebAudio.PannerParams()`.
+The `PannerParams` instance can be created by the `new WebAudio.PannerParams()`.
 
-You can find more about properties of panner at [Panner](https://developer.mozilla.org/en-US/docs/Web/API/PannerNode#properties).
+You can find more about the properties of panner at [Panner](https://developer.mozilla.org/en-US/docs/Web/API/PannerNode#properties).
 
 ```js
 
@@ -232,7 +234,7 @@ WebAudio.getAudio('speech').panner(pannerParams)
 
 ### getPanner
 
-Return the `PannerNodeWrapper` instance which enable provision to directly update the properties on created panner node.
+Returns the `PannerNodeWrapper` instance which enable provision to directly update the properties on created panner node.
 
 ```js
 WebAudio.getAudio('speech').getPanner()

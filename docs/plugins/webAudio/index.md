@@ -43,12 +43,12 @@ WebAudio.initWebAudio(config)
 
 ### Load
 
-load the configured audio buffers into the application and set the optional context instance.
+Loads the configured audio buffers into the application and set the optional context instance.
 
-The `load` method accept an config object.
-config should have `sounds` property with array of audio objects as value. Each audio object key act as `identifier` of `audio` and value is audio source URL.
+The `load` method accepts a config object.
+the config should have `sounds` property with an array of audio objects as value. Each audio object key act as an `identifier` of `audio` and the value is the audio source URL.
 
-confing can have optional property `audioContext` represents instance of context.
+the config can have optional property `audioContext` represents an instance of context.
 
 
 ```js
@@ -66,7 +66,7 @@ WebAudio.load(config)
 ```
 ### getBuffers
 
-Return the beffers of loaded audios.
+Returns the beffers of loaded audios.
 
 ```js
 WebAudio.getBuffers()
@@ -74,7 +74,7 @@ WebAudio.getBuffers()
 
 ### isReady
 
-Return whether instance of `AudioContext` created or  not.
+Returns whether instance of `AudioContext` created or not.
 
 ```js
 WebAudio.isReady()
@@ -82,11 +82,11 @@ WebAudio.isReady()
 
 ### loadEffects
 
-load the effects into application.
+Loads all the available effects into the application.
 
 Effects are impulse responses used to perform linear convolution on audio.
 
-The `loadEffects` method accept an array of objects. Each object key act as identifier of the effect and value represents the impulse response source url.
+The `loadEffects` method accepts an array of objects. Each object key acts as an identifier of the effect and the value represents the impulse response source URL.
 
 ```js
 const effects = [
@@ -99,11 +99,9 @@ WebAudio.load(effects)
 
 ### getAudio
 
-Return the `WebAudio` instance of given identifier.
+Returns the `WebAudio` instance of a given identifier.
 
 The `WebAudio` provide provision to control single audio with effects [Single Audio](singleAudio.md)`.
-
-The `WebAudio` provide provision to control single audio with effects [Single Audio](singleAudio.md)`
 
 The `getAudio` method accept an identifier
 to find out the audio.
@@ -116,12 +114,12 @@ WebAudio.getAudio('speech')
 
 By default all the loaded audios are marked as `selectedAudios` and these can be controlled by `play`, `pause`, `stop` and `reset` methods.
 
-The `setSettings` method accept the two arguments
+The `setSettings` method accepts the two arguments
 (`settings` and `identifiers`). Both the parameters are optional.
 
-`settings` is an object where key represents the setting name and value represents its value.
+`settings` is an object where the key represents the setting name and the value represents its value.
 
-`identifiers` is an array of audio `identifier`. If `idetifiers` are provided only those audios are marked as `selectedAudios`.
+The `identifiers` is an array of audio `identifiers`. If `idetifiers` are provided only those audios are marked as `selectedAudios`.
 
 settings will be applied on `selectedAudios`.
 
@@ -160,7 +158,7 @@ WebAudio.play()
 
 ### stop
 
-Stops the `selectedAudios`.
+Stops the `audios` that are currently playing.
 
 ```js
 WebAudio.stop()
@@ -168,7 +166,7 @@ WebAudio.stop()
 
 ### pause
 
-Pauses the `selectedAudios`.
+Pauses the `audios` that are currently playing.
 
 ```js
 WebAudio.pause()
@@ -176,7 +174,7 @@ WebAudio.pause()
 
 ### resume
 
-Resumes the `selectedAudios`.
+Resumes the `audios` that are currently paused.
 
 ```js
 WebAudio.resume()
@@ -184,9 +182,9 @@ WebAudio.resume()
 
 ### remove
 
-Remove the loaded audios.
+Remove audios that are loaded.
 
-The `remove` method accept `identifiers` as an argument. This is an optional argument if provided remove only given audios or else all the audios.
+The `remove` method accepts `identifiers` as an argument and will be removed whatever specified in the arguments, if we don't specify anything then all the identifiers will be removed.
 
 ```js
 WebAudio.remove() // remove all the audios
@@ -198,9 +196,9 @@ WebAudio.remove() // remove all the audios
 
 ### removeEffects
 
-Remove the audio effects (impulse response audios).
+Removes the audio effects (impulse response audios).
 
-The `removeEffects` method accept `identifiers` as an argument. This is an optional argument if provided remove only given effects or else all the effects.
+The `removeEffects` method accepts `identifiers` as an argument and will be removed whatever specified in the arguments, if we don't specify anything then all the effects will be removed.
 
 ```js
 WebAudio.removeEffects() // remove all the effects
@@ -212,8 +210,7 @@ WebAudio.removeEffects() // remove all the effects
 
 ### getListener
 
-Return the `WebAudioListener` instance that
-represents the position and orientation of the unique person listening to the audio scene, and is used in audio spatialization.
+Returns the `WebAudioListener` instance that represents the position and orientation of the unique person listening to the audio scene, and is used in audio spatialization.
 
 You can find more about properties of Audio Listener at [AudioListener](https://developer.mozilla.org/en-US/docs/Web/API/AudioListener#properties)
 
