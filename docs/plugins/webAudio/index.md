@@ -62,6 +62,10 @@ WebAudio.getBuffers()
 
 Return status of completion of audio context instance creation
 
+```js
+WebAudio.isReady()
+```
+
 ### loadEffects
 
 load the effects into application.
@@ -158,7 +162,7 @@ WebAudio.remove() // remove all the audios
 
 Remove the audio effects
 
-The `removeEffects` method accept `identifiers` as argument. This is options argument if provided remove only given effects or else all the effects
+The `removeEffects` method accept `identifiers` as argument. This is optional argument if provided remove only given effects or else all the effects
 
 ```js
 WebAudio.removeEffects() // remove all the effects
@@ -170,12 +174,10 @@ WebAudio.removeEffects() // remove all the effects
 
 ### getListener
 
+Return the `WebAudioListener` instance that
+represents the position and orientation of the unique person listening to the audio scene, and is used in audio spatialization
+
+You can find more about properties of Audio Listener at [AudioListener](https://developer.mozilla.org/en-US/docs/Web/API/AudioListener#properties)
 
 Next:
 [Single Audio](singleAudio.md)
-
-
-
-
-
-
