@@ -261,16 +261,6 @@ const reset = async () => {
 }
 
 /**
- * Reset the audios to initial state
- */
-const reset = async () => {
-  for (const audio of selectedAudios.values()){
-    audio.reset()
-  }
-  selectedAudios = new Map(allAudioInstances)
-}
-
-/**
  * Remove the buffers and audio instances of specified identifier or all
  * @param {Array} identifiers The array of identifiers
  */

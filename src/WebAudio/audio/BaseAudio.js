@@ -114,6 +114,11 @@ export default class BaseAudio{
         return this
     }
 
+    equalizer(){
+        console.warn("equalizer feature not supported")
+        return this
+    }
+
     reset(){
         console.warn("reset feature not supported")
     }
